@@ -1,10 +1,15 @@
 @import url(http://fonts.googleapis.com/css?family=Average+Sans&subset=latin,latin-ext);
 
 #rotaspace {
-    width: 700px;
+    width: 100%;
     height: 150px;
-    perspective: 500px;
+/* 
+    perspective: 457.1428571428571px;
+    -webkit-perspective: 457.1428571428571px;
+*/  
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    /* -webkit-perspective-origin: 50% 100%; */
 }
 
 #rotaspace .rotatem {
@@ -23,5 +28,5 @@
 
 #rotaspace .rotatem .textItem {
     font-family: 'Average Sans', sans-serif;
-    font-size: 180px;
+    font-size: 280px;
 }
