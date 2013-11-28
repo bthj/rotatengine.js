@@ -20,11 +20,11 @@
                 $('body').keydown(function(evt) {
                     switch(evt.keyCode) {
                         case 37: // left
-                            viewRotation -= radiansPerDegree;
+                            viewRotation -= (Math.PI/2); //radiansPerDegree;
                             break;
                 
                         case 39: // right
-                            viewRotation += radiansPerDegree;
+                            viewRotation += (Math.PI/2);  //radiansPerDegree;
                             break;
                     };
                     rotatengineInstance.spreadElementsOnACircle( viewRotation );

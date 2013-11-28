@@ -10,6 +10,9 @@
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
     /* -webkit-perspective-origin: 50% 100%; */
+    
+    transition-timing-function: linear;
+    -webkit-transition-timing-function: linear;
 }
 
 #rotaspace .rotatem {
@@ -23,7 +26,12 @@
     
     z-index:10;
     
-    transition: all 1s;
+    
+    transition: all 0.1s;
+    /*
+    transition-timing-function: ease-out;
+    -webkit-transition-timing-function: ease-out;
+    */
 }
 
 #rotaspace .rotatem .textItem {

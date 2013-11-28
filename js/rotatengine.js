@@ -4,6 +4,8 @@ function Rotatengine( config, levelNumber ) {
     this.container = null;
     
     this.isMouseDown = false;
+    this.currentX = 0;
+    this.currentY = 0;
     this.lastX = 0;
     this.lastY = 0;
     this.viewRotation = 0;
@@ -69,17 +71,21 @@ Rotatengine.prototype = {
         
         this.items.each(function(i){
             var thisItemRadians = (self.radiansPerItem * i) + viewRotation;
+//            var thisItemRadians = (self.degreesPerItem * i) + viewRotation;
             // http://javascript.info/tutorial/number-math#rounding-to-given-precision
             var x = (Math.round( Math.cos(thisItemRadians) * 100 ) / 100) * radius;
             var z = -( (Math.round( Math.sin(thisItemRadians) * 100 ) / 100) * radius );
-            //console.log( $(this).find('span').text() + " - x: " + x + ", z: " + z + ", rota: " + thisItemRadians );
+            if( i == 0 ) {
+//                console.log( $(this).find('span').text() + " # x: " + x + ", z: " + z + ", rota: " + thisItemRadians );
+            }
             var transform =  
                 "perspective("+ (perspective) +") " +
-                "translateZ("+(z - radius)+"px) " + 
+                "translateZ("+(z + radius)+"px) " + 
                 
                 "translateX("+(x)+"px) " + 
                 
                 "rotateY("+(thisItemRadians - (Math.PI/2))+"rad)";
+                //"rotateY("+(thisItemRadians)+"deg)";
             $(this).css({"transform": transform});
         });
         
@@ -113,12 +119,12 @@ Rotatengine.prototype = {
     },
     mouseDown: function( a ) {
         this.isMouseDown = true;
-        this.lastX = a.pageX;
-        this.lastY = a.pageY;
+        this.lastX = this.currentX = a.pageX;
+        this.lastY = this.currentY = a.pageY;
     },
     mouseMove: function( a ) {
         if( this.isMouseDown ) {
-            this.rotateByMouseMoveDelta(this.lastX, this.lastY, a.pageX, a.pageY);
+            //this.rotateByMouseMoveDelta(this.lastX, this.lastY, a.pageX, a.pageY);
             this.lastX = a.pageX;
             this.lastY = a.pageY;
         }
@@ -126,10 +132,15 @@ Rotatengine.prototype = {
     mouseUp: function() {
         this.isMouseDown = false;
     },
-    rotateByMouseMoveDelta: function( lastX, lastY, pageX, pageY ) {
-        this.viewRotation -= ((pageX - lastX) * this.radiansPerDegree);
-        console.log(this.viewRotation);
-        this.spreadElementsOnACircle( this.viewRotation );
+    rotateByMouseMoveDelta: function( /*lastX, lastY, pageX, pageY*/ ) {
+        if( this.lastX != this.currentX || this.lastY != this.currentY ) {
+            // this.viewRotation -= ((this.lastX - this.currentX) * this.radiansPerDegree);
+            this.viewRotation -= ((this.lastX - this.currentX) * 0.01);
+//            console.log(this.viewRotation);
+            this.spreadElementsOnACircle( this.viewRotation );
+            this.currentX = this.lastX;
+            this.currentY = this.lastY;
+        }
     },
     initialize: function( levelNumber ) {
         var self = this;
@@ -137,8 +148,8 @@ Rotatengine.prototype = {
         
         self.container = $('#rotaspace');
         
-        self.viewWidth = $(window).width() / 1.0205;
-        self.viewHeight = $(window).height() / 1.0205;
+        self.viewWidth = $(window).width() / 1.023;
+        self.viewHeight = $(window).height() / 1.023;
         
         
         //rotaSpace.width(this.viewWidth).height(this.viewHeight).css("overflow", "hidden");
@@ -154,9 +165,12 @@ Rotatengine.prototype = {
         
         self.items = self.container.find('.rotatem');
         self.radiansPerItem = self.fullCircleRadians / self.items.length;
+//        self.degreesPerItem = 360 / self.items.length;
         
         self.spreadElementsOnACircle( 0 );
         
         self.container.width(self.viewWidth).height(self.viewHeight).css("overflow", "hidden");
+        
+        self.rotationPoller = setInterval( function(){self.rotateByMouseMoveDelta()}, 50 );
     }
 }
