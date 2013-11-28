@@ -1,5 +1,15 @@
 function Rotatengine( config, levelNumber ) {
     this.config = config;
+
+    this.container = null;
+    
+    this.isMouseDown = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.viewRotation = 0;
+    
+    this.fullCircleRadians = 2 * Math.PI;
+    this.radiansPerDegree = (2*Math.PI) / 360;
     
     this.initialize( levelNumber );
 }
@@ -30,7 +40,16 @@ Rotatengine.prototype = {
         }
         return itemElement;
     },
-    spreadElementsOnACircle: function( container, viewRotation ) {
+//    rotateElementsOnACircle: function( viewRotation ) {
+//        var self = this;
+//        this.items.each(function(i){
+//            var thisItemRadians = (self.radiansPerItem * i) + viewRotation;
+//            
+//            $(this).css({"transform": ""});
+//        });
+//    },
+    spreadElementsOnACircle: function( viewRotation ) {
+        var self = this;
 //        if( undefined === centerElement ) {
 //            var items = $(container).find('.rotatem');
 //            centerElement = items.eq(Math.floor(items.length/2));
@@ -44,23 +63,19 @@ Rotatengine.prototype = {
         
         var perspective = this.viewWidth / 2;
         
-        var items = container.find('.rotatem');
-        
         var radius = this.viewWidth * 1.2;
-        var fullCircleRadians = 2 * Math.PI;
-        var radiansPerItem = fullCircleRadians / items.length;
         
-        container.css({"transform": "perspective("+perspective+")"});
+        self.container.css({"transform": "perspective("+perspective+")"});
         
-        items.each(function(i){
-            var thisItemRadians = (radiansPerItem * i) + viewRotation;
+        this.items.each(function(i){
+            var thisItemRadians = (self.radiansPerItem * i) + viewRotation;
             // http://javascript.info/tutorial/number-math#rounding-to-given-precision
             var x = (Math.round( Math.cos(thisItemRadians) * 100 ) / 100) * radius;
             var z = -( (Math.round( Math.sin(thisItemRadians) * 100 ) / 100) * radius );
             //console.log( $(this).find('span').text() + " - x: " + x + ", z: " + z + ", rota: " + thisItemRadians );
             var transform =  
                 "perspective("+ (perspective) +") " +
-                "translateZ("+(z + radius)+"px) " + 
+                "translateZ("+(z - radius)+"px) " + 
                 
                 "translateX("+(x)+"px) " + 
                 
@@ -96,14 +111,35 @@ Rotatengine.prototype = {
 ////            }
 //        });
     },
+    mouseDown: function( a ) {
+        this.isMouseDown = true;
+        this.lastX = a.pageX;
+        this.lastY = a.pageY;
+    },
+    mouseMove: function( a ) {
+        if( this.isMouseDown ) {
+            this.rotateByMouseMoveDelta(this.lastX, this.lastY, a.pageX, a.pageY);
+            this.lastX = a.pageX;
+            this.lastY = a.pageY;
+        }
+    },
+    mouseUp: function() {
+        this.isMouseDown = false;
+    },
+    rotateByMouseMoveDelta: function( lastX, lastY, pageX, pageY ) {
+        this.viewRotation -= ((pageX - lastX) * this.radiansPerDegree);
+        console.log(this.viewRotation);
+        this.spreadElementsOnACircle( this.viewRotation );
+    },
     initialize: function( levelNumber ) {
         var self = this;
         var level = this.config.levels[levelNumber];
         
-        var rotaSpace = $('#rotaspace');
+        self.container = $('#rotaspace');
         
-        this.viewWidth = $(window).width() / 1.0205;
-        this.viewHeight = $(window).height() / 1.0205;
+        self.viewWidth = $(window).width() / 1.0205;
+        self.viewHeight = $(window).height() / 1.0205;
+        
         
         //rotaSpace.width(this.viewWidth).height(this.viewHeight).css("overflow", "hidden");
         
@@ -113,11 +149,14 @@ Rotatengine.prototype = {
             var itemElement = self.getElementForItemByType( item, level.itemsType );
             itemContainer.appendChild( itemElement );
             
-            rotaSpace.append(itemContainer);
+            self.container.append(itemContainer);
         });
         
-        self.spreadElementsOnACircle( rotaSpace, 0 );
+        self.items = self.container.find('.rotatem');
+        self.radiansPerItem = self.fullCircleRadians / self.items.length;
         
-        rotaSpace.width(this.viewWidth).height(this.viewHeight).css("overflow", "hidden");
+        self.spreadElementsOnACircle( 0 );
+        
+        self.container.width(self.viewWidth).height(self.viewHeight).css("overflow", "hidden");
     }
 }

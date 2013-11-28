@@ -7,11 +7,12 @@
         
         <link rel="stylesheet" href="css/rotatengine.css" />
         
-        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <script src="js/rotatengineConfig.js"></script>
         <script src="js/rotatengine.js"></script>
         <script type="text/javascript">
-            $( document ).ready( function() {
+            var $document = $( document );
+            $document.ready( function() {
                 var rotatengineInstance = new Rotatengine( rotatengineConfig, 0 );
                 
                 var radiansPerDegree = (2*Math.PI)/360;
@@ -26,7 +27,20 @@
                             viewRotation += radiansPerDegree;
                             break;
                     };
-                    rotatengineInstance.spreadElementsOnACircle( $('#rotaspace'), viewRotation );
+                    rotatengineInstance.spreadElementsOnACircle( viewRotation );
+                });
+                
+                $document.mousedown(function(e) {
+                    e.preventDefault();
+                    rotatengineInstance.mouseDown( e );
+                });
+                $document.mousemove(function(e) {
+                    e.preventDefault();
+                    rotatengineInstance.mouseMove( e );
+                });
+                $document.mouseup(function(e){
+                    e.preventDefault();
+                    rotatengineInstance.mouseUp();
                 });
             });
         </script>
