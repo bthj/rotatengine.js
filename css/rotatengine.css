@@ -36,5 +36,6 @@
 
 #rotaspace .rotatem .textItem {
     font-family: 'Average Sans', sans-serif;
-    font-size: 280px;
+    /* font-size: 280px; */
+    font-size: 35vmin;
 }
