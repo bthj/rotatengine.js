@@ -94,7 +94,7 @@ Rotatengine.prototype = {
     rotateByMouseMoveDelta: function( /*lastX, lastY, pageX, pageY*/ ) {
         if( this.lastX != this.currentX || this.lastY != this.currentY ) {
             // this.viewRotation -= ((this.lastX - this.currentX) * this.radiansPerDegree);
-            this.viewRotation -= ((this.lastX - this.currentX) * 0.01);
+            this.viewRotation -= ((this.lastX - this.currentX) * 0.005);
 //            console.log(this.viewRotation);
             this.spreadElementsOnACircle( this.viewRotation );
             this.currentX = this.lastX;
