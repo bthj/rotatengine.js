@@ -45,7 +45,6 @@ Rotatengine.prototype = {
     spreadElementsOnACircle: function( viewRotation ) {
         var self = this;
 
-        
         var perspective = this.viewWidth / 2;
         
         var radius = this.viewWidth * 1.2;
@@ -75,7 +74,12 @@ Rotatengine.prototype = {
                 //"rotateY("+(thisItemRadians)+"deg)";
             $(this).css({"transform": transform});
         });
+		this.viewRotation = viewRotation;
     },
+	rotateSceneToDegree: function( degree ) {
+		var viewRotationInRadians = degree * (Math.PI / 180);
+		this.spreadElementsOnACircle( viewRotationInRadians );
+	},
     mouseDown: function( a ) {
         this.isMouseDown = true;
         this.lastX = this.currentX = a.pageX;
@@ -94,9 +98,10 @@ Rotatengine.prototype = {
     rotateByMouseMoveDelta: function( /*lastX, lastY, pageX, pageY*/ ) {
         if( this.lastX != this.currentX || this.lastY != this.currentY ) {
             // this.viewRotation -= ((this.lastX - this.currentX) * this.radiansPerDegree);
-            this.viewRotation -= ((this.lastX - this.currentX) * 0.005);
+            var viewRotation = 
+					this.viewRotation - ((this.lastX - this.currentX) * 0.005);
 //            console.log(this.viewRotation);
-            this.spreadElementsOnACircle( this.viewRotation );
+            this.spreadElementsOnACircle( viewRotation );
             this.currentX = this.lastX;
             this.currentY = this.lastY;
         }

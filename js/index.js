@@ -20,6 +20,8 @@ var app = {
     // Application Constructor
     initialize: function() {
         this.bindEvents();
+		
+		this.watchID = null;
     },
     // Bind Event Listeners
     //
@@ -34,7 +36,14 @@ var app = {
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
-    },
+		
+		//navigator.compass.getCurrentHeading(onSuccess, function(){});
+		
+		app.startCompassWatch();
+    },	
+//	 onSuccess: function (heading) {
+//        alert('Heading: ' + heading.magneticHeading);
+//    },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         var parentElement = document.getElementById(id);
@@ -45,5 +54,21 @@ var app = {
         receivedElement.setAttribute('style', 'display:block;');
 
         console.log('Received Event: ' + id);
-    }
+    },
+	
+	startCompassWatch: function() {
+//		alert(navigator.compass);
+		var options = { frequency: 50 };
+		this.watchID = navigator.compass.watchHeading(
+				app.onCompassSuccess, app.onCompassError, options);
+	},
+	onCompassSuccess: function( heading ) {
+		//document.getElementById("heading").innerText = rotatengineInstance.getViewRotation(); // heading.magneticHeading;
+		rotatengineInstance.rotateSceneToDegree( heading.magneticHeading );
+		
+		//alert(heading.magneticHeading);
+	},
+	onCompassError: function( compassError ) {
+		// no-op
+	}
 };

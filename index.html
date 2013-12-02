@@ -11,9 +11,10 @@
         <script src="js/rotatengineConfig.js"></script>
         <script src="js/rotatengine.js"></script>
         <script type="text/javascript">
+			var rotatengineInstance = undefined;
             var $document = $( document );
             $document.ready( function() {
-                var rotatengineInstance = new Rotatengine( rotatengineConfig, 0 );
+                rotatengineInstance = new Rotatengine( rotatengineConfig, 0 );
                 
                 var radiansPerDegree = (2*Math.PI)/360;
                 var viewRotation = rotatengineInstance.getViewRotation();
@@ -52,10 +53,21 @@
     </head>
     
     <body>
-<!--        <div id="container" style="overflow:hidden;">-->
+        <div class="app">
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+				<p id="heading"></p>
+            </div>
             <div id="rotaspace">
             
-            </div>        
-<!--        </div>-->
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+		<!--<script type="text/javascript" src="cordova_plugins.js"></script>-->
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
     </body>
 </html>
