@@ -100,7 +100,7 @@ Rotatengine.prototype = {
         this.isMouseDown = false;
     },
     rotateByMouseMoveDelta: function( /*lastX, lastY, pageX, pageY*/ ) {
-        if( this.lastX != this.currentX || this.lastY != this.currentY ) {
+        if( this.lastX !== this.currentX || this.lastY !== this.currentY ) {
             // this.viewRotation -= ((this.lastX - this.currentX) * this.radiansPerDegree);
             var viewRotation = 
 					this.viewRotation - ((this.lastX - this.currentX) * 0.005);
@@ -155,7 +155,7 @@ Rotatengine.prototype = {
         
 		if( ! isMobile.any() ) {
 			self.rotationPoller = setInterval( function(){
-				self.rotateByMouseMoveDelta() }, 50 );
+				self.rotateByMouseMoveDelta(); }, 50 );
 		}
     }
-}
+};
