@@ -80,6 +80,10 @@ Rotatengine.prototype = {
 		var viewRotationInRadians = degree * (Math.PI / 180);
 		this.spreadElementsOnACircle( viewRotationInRadians );
 	},
+	incrementSceneRotationByDegrees: function( degree ) {
+		var radiansToRotateTo = this.viewRotation + (degree*(Math.PI/180));
+		this.spreadElementsOnACircle( radiansToRotateTo );
+	},
     mouseDown: function( a ) {
         this.isMouseDown = true;
         this.lastX = this.currentX = a.pageX;
@@ -149,6 +153,9 @@ Rotatengine.prototype = {
         
         self.fitToView();
         
-        self.rotationPoller = setInterval( function(){self.rotateByMouseMoveDelta()}, 50 );
+		if( ! isMobile.any() ) {
+			self.rotationPoller = setInterval( function(){
+				self.rotateByMouseMoveDelta() }, 50 );
+		}
     }
 }

@@ -16,12 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+var interpolationIncrementEndTime;
+var lastCompassTimestamp;
+var lastHeading;
+var nextToLastHeading;
+
 var app = {
     // Application Constructor
     initialize: function() {
         this.bindEvents();
 		
-		this.watchID = null;
+		this.watchID = undefined;
+		this.lastCompassTimestamp = 0;
+		this.nextToLastCompassTimestamp = 0;
+		
+		this.interpolationIncrement = 0;
+		this.interpolationIncrementEndTime = 0;
+		
+		this.compassGranula = 0;
     },
     // Bind Event Listeners
     //
@@ -35,11 +48,18 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
+		alert("ready");
         app.receivedEvent('deviceready');
 		
 		//navigator.compass.getCurrentHeading(onSuccess, function(){});
 		
-		app.startCompassWatch();
+		if( window.DeviceMotionEvent !== undefined && isMobile.iOS() ) {
+			// let's use the gyroscope on iOS, as it works decently
+			window.ondeviceorientation = app.gyroMove;			
+		} else {
+			// otherwise we'll use the compass
+			app.startCompassWatch();
+		}
     },	
 //	 onSuccess: function (heading) {
 //        alert('Heading: ' + heading.magneticHeading);
@@ -58,17 +78,106 @@ var app = {
 	
 	startCompassWatch: function() {
 //		alert(navigator.compass);
-		var options = { frequency: 50 };
+		var self = this;
+		var options = { frequency: 200 };
 		this.watchID = navigator.compass.watchHeading(
-				app.onCompassSuccess, app.onCompassError, options);
+				self.onCompassSuccess, self.onCompassError, options);
+		
+		this.compassGranula = setInterval( function(){
+			self.compassInterpolater(); 
+		}, 50 );
+	},
+	compassInterpolater: function() {
+		// let's get an interval to average our way through
+		document.getElementById("heading").innerText = 
+				"end:"+this.interpolationIncrementEndTime+", last:"+lastCompassTimestamp;
+//		document.getElementById("heading").innerText = "last: "+this.lastCompassTimestamp;
+//		if( this.interpolationIncrementEndTime < this.lastCompassTimestamp ) {
+		if( this.interpolationIncrementEndTime < lastCompassTimestamp ) {
+			this.interpolationIncrement = 
+//				(this.lastHeading - this.nextToLastHeading) / 4;
+				(lastHeading - nextToLastHeading) / 4;
+//			this.interpolationIncrementEndTime = this.lastCompassTimestamp;
+			this.interpolationIncrementEndTime = lastCompassTimestamp;
+		} else {
+			// increment the rotation by an average from last interval
+			document.getElementById("heading").innerText = 
+					"increment by "+this.interpolationIncrement;
+			rotatengineInstance.incrementSceneRotationByDegrees( 
+					this.interpolationIncrement );
+		}
 	},
 	onCompassSuccess: function( heading ) {
-		//document.getElementById("heading").innerText = rotatengineInstance.getViewRotation(); // heading.magneticHeading;
-		rotatengineInstance.rotateSceneToDegree( heading.magneticHeading );
+		var self = this;
 		
+//		clearInterval( this.compassGranula );
+		
+		var timestampDelta = heading.timestamp - this.lastCompassTimestamp;
+		
+		if( timestampDelta ) {
+			document.getElementById("heading").innerText = timestampDelta;
+
+			rotatengineInstance.rotateSceneToDegree( heading.magneticHeading );
+		}
+		
+		this.nextToLastCompassTimestamp = this.lastCompassTimestamp;
+		this.nextToLastHeading = this.lastHeading;
+		
+		this.lastCompassTimestamp = heading.timestamp;
+		lastCompassTimestamp = this.lastCompassTimestamp;
+		
+		this.lastHeading = heading.magneticHeading;
+		if( ! this.nextToLastCompassTimestamp ) {
+//		if( ! this.nextToLastHeading ) {
+			this.nextToLastCompassTimestamp = heading.timestamp;
+			this.nextToLastHeading = heading.magneticHeading;
+		}
+		
+		lastHeading = this.lastHeading;
+		nextToLastHeading = this.nextToLastHeading;
+		
+//		this.compassGranula = setInterval( function(){
+//			self.compassInterpolater(); 
+//		}, 50 );
+
 		//alert(heading.magneticHeading);
 	},
 	onCompassError: function( compassError ) {
 		// no-op
+	},
+	gyroMove: function( event ) {
+		rotatengineInstance.rotateSceneToDegree( 360 - event.alpha );
 	}
+};
+
+
+
+var isMobile = { // from http://projects.3232design.com/html5_3d/include/main.js
+    Android: function () {
+        return navigator.userAgent.match(/Android/i) ? true : false
+    },
+    BlackBerry: function () {
+        return navigator.userAgent.match(/BlackBerry/i) ? true : false
+    },
+    iOS: function () {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false
+    },
+    iPad: function () {
+        return navigator.userAgent.match(/iPad/i) ? true : false
+    },
+    iPhone: function () {
+        return navigator.userAgent.match(/iPhone|iPod/i) ? true : false
+    },
+    Safari: function () {
+        return navigator.userAgent.match(/Safari/i) ? true : false
+    },
+    Windows: function () {
+        return navigator.userAgent.match(/IEMobile/i) ? true : false
+    },
+    hasTouch: function () {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows())
+    },
+    any: function () {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows())
+    }
 };
