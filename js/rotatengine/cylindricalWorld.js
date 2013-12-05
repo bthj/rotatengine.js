@@ -5,20 +5,34 @@
  */
 
 
-define(["jquery", "rotatengine/util/isMobile"], function( $, isMobile ) {
+define([
+	"jquery", "mediator", 
+	"rotatengine/rotation/eventsFromInput",
+	"rotatengine/rotation/mouseInCylinder",
+	"rotatengine/rotation/sensorsForCylinderBasic",
+	"rotatengine/util/isMobile"
+], function( 
+		$, mediator, 
+		eventsFromInput, 
+		mouseInCylinder, 
+		sensorsForCylinder, 
+		isMobile 
+	) {
 	
 	var container;
 	var itemsController;
+//	var rotationPoller;
+	
 	var viewWidth;
 	var viewHeight;
 	
 	var viewRotation;
 	
-    var isMouseDown = false;
-    var currentX = 0;
-    var currentY = 0;
-    var lastX = 0;
-    var lastY = 0;
+//    var isMouseDown = false;
+//    var currentX = 0;
+//    var currentY = 0;
+//    var lastX = 0;
+//    var lastY = 0;
 	
 	var fullCircleRadians = 2 * Math.PI;
 	
@@ -37,6 +51,75 @@ define(["jquery", "rotatengine/util/isMobile"], function( $, isMobile ) {
 		return fullCircleRadians / itemsController.getItemsContainers().length;
 	}
 	
+//    function mouseDown( a ) {
+//        isMouseDown = true;
+//        lastX = currentX = a.pageX;
+//        lastY = currentY = a.pageY;
+//    }
+//    function mouseMove( a ) {
+//        if( isMouseDown ) {
+//            lastX = a.pageX;
+//            lastY = a.pageY;
+//        }
+//    }
+//    function mouseUp() {
+//        isMouseDown = false;
+//    }
+//    function rotateByMouseMoveDelta() {
+//        if( lastX !== currentX || lastY !== currentY ) {
+//            var viewRotation = 
+//					viewRotation - ((lastX - currentX) * 0.005);
+//            spreadElementsOnACircle( viewRotation );
+//            currentX = lastX;
+//            currentY = lastY;
+//        }
+//    }
+	
+	function startInputMonitoring() {
+		if( isMobile.any() ) {
+			
+//			if( window.DeviceMotionEvent !== undefined && isMobile.iOS() ) {
+//				// let's use the gyroscope on iOS, as it works decently
+//				window.ondeviceorientation = gyroMove;			
+//			} else {
+//				// otherwise we'll use the compass
+//				startCompassWatch();
+//			}
+
+			sensorsForCylinder.startWatcing();
+			
+			mediator.subscribe(
+					eventsFromInput.newRotationDegrees, rotateSceneToDegree);
+			mediator.subscribe(
+					eventsFromInput.newRotationIncrementInDegrees, 
+					incrementSceneRotationByDegrees );
+					
+		} else { // let's watch the mouse movement
+//			var $document = $( document );
+//			$document.mousedown(function(e) {
+//				e.preventDefault();
+//				mouseDown(e);
+//			});
+//			$document.mousemove(function(e) {
+//				e.preventDefault();
+//				mouseMove(e);
+//			});
+//			$document.mouseup(function(e) {
+//				e.preventDefault();
+//				mouseUp();
+//			});
+//			
+//			rotationPoller = setInterval( function(){
+//				rotateByMouseMoveDelta(); }, 50 );
+			
+			//sends eventsFromInput.newRotationRadians
+			mouseInCylinder.startMonitoring();
+			
+			mediator.subscribe(
+					eventsFromInput.newRotationRadians, spreadElementsOnACircle);
+		}
+	}
+	
 	
 	
 	function initialize( containerId, rotation, itemsManager ) {
@@ -47,10 +130,7 @@ define(["jquery", "rotatengine/util/isMobile"], function( $, isMobile ) {
 		
 		fitToView();
 		
-		if( ! isMobile.any() ) {
-			self.rotationPoller = setInterval( function(){
-				self.rotateByMouseMoveDelta(); }, 50 );
-		}
+		startInputMonitoring();
 	}
 	
 	function spreadElementsOnACircle( rotation ) {
@@ -90,29 +170,7 @@ define(["jquery", "rotatengine/util/isMobile"], function( $, isMobile ) {
 		var radiansToRotateTo = viewRotation + (degree*(Math.PI/180));
 		spreadElementsOnACircle( radiansToRotateTo );
 	}
-    function mouseDown( a ) {
-        isMouseDown = true;
-        lastX = currentX = a.pageX;
-        lastY = currentY = a.pageY;
-    }
-    function mouseMove( a ) {
-        if( isMouseDown ) {
-            lastX = a.pageX;
-            lastY = a.pageY;
-        }
-    }
-    function mouseUp() {
-        isMouseDown = false;
-    }
-    function rotateByMouseMoveDelta() {
-        if( lastX !== currentX || lastY !== currentY ) {
-            var viewRotation = 
-					viewRotation - ((lastX - currentX) * 0.005);
-            spreadElementsOnACircle( viewRotation );
-            currentX = lastX;
-            currentY = lastY;
-        }
-    }
+
     function getViewRotation() {
         return viewRotation;
     }
@@ -124,10 +182,6 @@ define(["jquery", "rotatengine/util/isMobile"], function( $, isMobile ) {
 		spreadElementsOnACircle: spreadElementsOnACircle,
 		rotateSceneToDegree: rotateSceneToDegree,
 		incrementSceneRotationByDegrees: incrementSceneRotationByDegrees,
-		mouseDown: mouseDown,
-		mouseMove: mouseMove,
-		mouseUp: mouseUp,
-		rotateByMouseMoveDelta: rotateByMouseMoveDelta,
 		getViewRotation: getViewRotation
 	};
 });

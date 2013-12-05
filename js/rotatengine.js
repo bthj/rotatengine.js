@@ -66,7 +66,7 @@ Rotatengine.prototype = {
 //            }
             var transform =  
                 "perspective("+ (perspective) +") " +
-                "translateZ("+(z + radius)+"px) " + 
+                "translateZ("+(z - radius)+"px) " + 
                 
                 "translateX("+(x)+"px) " + 
                 

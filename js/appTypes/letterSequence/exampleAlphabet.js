@@ -8,7 +8,8 @@
 require.config({
 	baseUrl: "/js",
 	paths: {
-		jquery: "libs/jquery/jquery"
+		jquery: "libs/jquery/jquery",
+		mediator: "libs/mediator"
 	}
 });
 
@@ -22,6 +23,8 @@ require([
 	var itemContainerClass = "rotatem";
 	var itemClass = "textItem";
 	var initialViewRotation = Math.PI / 2;
+	
+	// ??? $document.ready( function() {
 	
 	LettersController.initializeLetters( 
 			Data.LEVEL_DATA.LEVEL_1.items, itemContainerClass, itemClass );
