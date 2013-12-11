@@ -48,10 +48,7 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-		alert("ready");
-        app.receivedEvent('deviceready');
-		
-		//navigator.compass.getCurrentHeading(onSuccess, function(){});
+//        app.receivedEvent('deviceready');
 		
 		if( window.DeviceMotionEvent !== undefined && isMobile.iOS() ) {
 			// let's use the gyroscope on iOS, as it works decently
@@ -61,9 +58,6 @@ var app = {
 			app.startCompassWatch();
 		}
     },	
-//	 onSuccess: function (heading) {
-//        alert('Heading: ' + heading.magneticHeading);
-//    },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         var parentElement = document.getElementById(id);
@@ -77,45 +71,39 @@ var app = {
     },
 	
 	startCompassWatch: function() {
-//		alert(navigator.compass);
 		var self = this;
 		var options = { frequency: 200 };
 		this.watchID = navigator.compass.watchHeading(
 				self.onCompassSuccess, self.onCompassError, options);
-		
-		this.compassGranula = setInterval( function(){
-			self.compassInterpolater(); 
-		}, 50 );
+
+		// extrapolation experiment
+//		this.compassGranula = setInterval( function(){
+//			self.compassExtrapolator(); 
+//		}, 50 );
 	},
-	compassInterpolater: function() {
+	compassExtrapolator: function() {
 		// let's get an interval to average our way through
-		document.getElementById("heading").innerText = 
-				"end:"+this.interpolationIncrementEndTime+", last:"+lastCompassTimestamp;
-//		document.getElementById("heading").innerText = "last: "+this.lastCompassTimestamp;
-//		if( this.interpolationIncrementEndTime < this.lastCompassTimestamp ) {
+//		document.getElementById("heading").innerText = 
+//				"end:"+this.interpolationIncrementEndTime+", last:"+lastCompassTimestamp;
+
 		if( this.interpolationIncrementEndTime < lastCompassTimestamp ) {
 			this.interpolationIncrement = 
-//				(this.lastHeading - this.nextToLastHeading) / 4;
 				(lastHeading - nextToLastHeading) / 4;
-//			this.interpolationIncrementEndTime = this.lastCompassTimestamp;
 			this.interpolationIncrementEndTime = lastCompassTimestamp;
 		} else {
 			// increment the rotation by an average from last interval
-			document.getElementById("heading").innerText = 
-					"increment by "+this.interpolationIncrement;
+//			document.getElementById("heading").innerText = 
+//					"increment by "+this.interpolationIncrement;
 			rotatengineInstance.incrementSceneRotationByDegrees( 
 					this.interpolationIncrement );
 		}
 	},
 	onCompassSuccess: function( heading ) {
-		var self = this;
-		
 //		clearInterval( this.compassGranula );
 		
 		var timestampDelta = heading.timestamp - this.lastCompassTimestamp;
 		
 		if( timestampDelta ) {
-			document.getElementById("heading").innerText = timestampDelta;
 
 			rotatengineInstance.rotateSceneToDegree( heading.magneticHeading );
 		}
@@ -128,7 +116,6 @@ var app = {
 		
 		this.lastHeading = heading.magneticHeading;
 		if( ! this.nextToLastCompassTimestamp ) {
-//		if( ! this.nextToLastHeading ) {
 			this.nextToLastCompassTimestamp = heading.timestamp;
 			this.nextToLastHeading = heading.magneticHeading;
 		}
@@ -137,10 +124,8 @@ var app = {
 		nextToLastHeading = this.nextToLastHeading;
 		
 //		this.compassGranula = setInterval( function(){
-//			self.compassInterpolater(); 
+//			self.compassExtrapolator(); 
 //		}, 50 );
-
-		//alert(heading.magneticHeading);
 	},
 	onCompassError: function( compassError ) {
 		// no-op
@@ -154,30 +139,30 @@ var app = {
 
 var isMobile = { // from http://projects.3232design.com/html5_3d/include/main.js
     Android: function () {
-        return navigator.userAgent.match(/Android/i) ? true : false
+        return navigator.userAgent.match(/Android/i) ? true : false;
     },
     BlackBerry: function () {
-        return navigator.userAgent.match(/BlackBerry/i) ? true : false
+        return navigator.userAgent.match(/BlackBerry/i) ? true : false;
     },
     iOS: function () {
-        return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false;
     },
     iPad: function () {
-        return navigator.userAgent.match(/iPad/i) ? true : false
+        return navigator.userAgent.match(/iPad/i) ? true : false;
     },
     iPhone: function () {
-        return navigator.userAgent.match(/iPhone|iPod/i) ? true : false
+        return navigator.userAgent.match(/iPhone|iPod/i) ? true : false;
     },
     Safari: function () {
-        return navigator.userAgent.match(/Safari/i) ? true : false
+        return navigator.userAgent.match(/Safari/i) ? true : false;
     },
     Windows: function () {
-        return navigator.userAgent.match(/IEMobile/i) ? true : false
+        return navigator.userAgent.match(/IEMobile/i) ? true : false;
     },
     hasTouch: function () {
-        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows())
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows());
     },
     any: function () {
-        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows())
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Windows());
     }
 };

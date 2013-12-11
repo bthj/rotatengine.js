@@ -57,16 +57,17 @@ Rotatengine.prototype = {
             // let's go clockwise, thus self.fullCircleRadins - ...
             var thisItemRadians = 
                 self.fullCircleRadians - (self.radiansPerItem * i) + viewRotation;
-//            var thisItemRadians = (self.degreesPerItem * i) + viewRotation;
+		
             // http://javascript.info/tutorial/number-math#rounding-to-given-precision
             var x = (Math.round( Math.cos(thisItemRadians) * precision ) / precision) * radius;
             var z = -( (Math.round( Math.sin(thisItemRadians) * precision ) / precision) * radius );
 //            if( i == 0 ) {
 //                console.log( $(this).find('span').text() + " # x: " + x + ", z: " + z + ", rota: " + thisItemRadians );
 //            }
+
             var transform =  
                 "perspective("+ (perspective) +") " +
-                "translateZ("+(z - radius)+"px) " + 
+                "translateZ("+(z + radius)+"px) " + 
                 
                 "translateX("+(x)+"px) " + 
                 
